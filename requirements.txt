@@ -1,0 +1,12 @@
+nose
+sphinx
+pandas
+numpy
+mysql-connector
+sklearn
+statsmodels 
+matplotlib 
+ruptures 
+scipy 
+cython
+joblib
