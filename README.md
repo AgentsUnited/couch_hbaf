@@ -13,8 +13,7 @@ We'll create a file called "Dockerfile" that contains the steps and information 
 ```
 FROM python:latest
 COPY . /python_app
-WORKDIR /python_app
-RUN pip install numpy pandas statsmodels matplotlib ruptures scipy cython
+WORKDIR /python_app 
 RUN pip3 install -r requirements.txt
 CMD python ./short_term_main.py 
 ```
