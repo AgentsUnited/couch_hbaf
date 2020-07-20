@@ -52,41 +52,29 @@ This will “tag” the image python-app and build it. After it is built, you ca
 
 
 
-```
-The Cycle
----------
+Here are the steps with the logic behind the python scripts:
+A. The first step is to define the server connection details, for both reading data (server_read) and uploading data (server_upload). If this is None (I removed it for security reasons), the system asks the user’s input for the server connection attributes
+B. Based on the server_read, it calculates all the existing device ids that correspond to a certain user with a certain device
+C. For each unique device id, it reads all the available raw smartphone data that exist on the server_read
+D. Based on the raw smartphone data, it calculates four dataframes; Physical_Activity, Social_Activity, Emotional_Activity and Cognitive_Activity
+E. Based on the extracted dataframes, it uploads the processed data on the server_store.
 
-So that's the basic cycle:
+Regarding the step A, there are two attributes that I erased for security reasons. These are the following:
+server_read = {'host': 'aware-micro.ewi.utwente.nl', 'user': 'human_monitoring', 'passwd': 'hee5eeYo', 'db': 'human_monitoring' }
+server_store = {'host': 'linux442.ewi.utwente.nl', 'user': 'Short_Behaviour', 'passwd': 'Xj6kEQdF', 'db': 'ShortTerm_Behaviour’ }
 
-1.  Create the source code
-2.  Create a Dockerfile file
-3.  Build the image
-4.  Run the image in a container
+Every time that you run the code, the ‘server_read' and ‘server_store' values will be None and thus, the system will ask for your input to gain access on the server.
+Please insert the following for the server_read:
+Please enter the host: aware-micro.ewi.utwente.nl 
+Please enter the user: human_monitoring 
+Please enter the password: hee5eeYo 
+Please enter the name of the database: human_monitoring
 
-About that Dockerfile
----------------------
-
-The file “Dockerfile” is used to guide the construction of your image. Here’s a short, step-by-step breakdown: `FROM python:latest` This is your base image, the starting point. In this case, it’s the official image from the Python Software Foundation and has Python:3 installed. That means we don’t have to install any framework; it’s already included with this base image.  ![](./Build%20Your%20_Hello%20World_%20Container%20Using%20Python%20_%20Red%20Hat%20Developer_files/Screen-Shot-2019-03-05-at-11.44.31-AM.png)
-
-```
-FROM python:latest
-COPY . /python_app
-WORKDIR /python_app
-```
-
-Copies the program into the image.
-
-```
-RUN pip install -r requirements.txt
-```
-
-Install the packages necessary for our code into the image via the file requirements.txt.
-
-
-CMD [ "python", "./index.py"]
-```
-
-This is what runs when the image is started (i.e. `docker run`).
+Please insert the following for the server_store:
+Please enter the host: linux442.ewi.utwente.nl
+Please enter the user: Short_Behaviour
+Please enter the password: Xj6kEQdF 
+Please enter the name of the database: ShortTerm_Behaviour
 
 ---------------------------
 
