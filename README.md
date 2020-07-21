@@ -50,32 +50,34 @@ To edit the container
  
 This will “tag” the image python-app and build it. After it is built, you can run the image as a container.  
 
-
-
 Here are the steps with the logic behind the python scripts:
-A. The first step is to define the server connection details, for both reading data (server_read) and uploading data (server_upload). If this is None (I removed it for security reasons), the system asks the user’s input for the server connection attributes
+A. The first step is to define the server connection details, for both reading data (server_read) and uploading data (server_upload). If this is None (It's for security reasons), the system asks the user’s input for the server connection attributes
 B. Based on the server_read, it calculates all the existing device ids that correspond to a certain user with a certain device
 C. For each unique device id, it reads all the available raw smartphone data that exist on the server_read
 D. Based on the raw smartphone data, it calculates four dataframes; Physical_Activity, Social_Activity, Emotional_Activity and Cognitive_Activity
 E. Based on the extracted dataframes, it uploads the processed data on the server_store.
 
-Regarding the step A, there are two attributes that I erased for security reasons. These are the following:
-server_read = {'host': 'aware-micro.ewi.utwente.nl', 'user': 'human_monitoring', 'passwd': 'hee5eeYo', 'db': 'human_monitoring' }
-server_store = {'host': 'linux442.ewi.utwente.nl', 'user': 'Short_Behaviour', 'passwd': 'Xj6kEQdF', 'db': 'ShortTerm_Behaviour’ }
 
 Every time that you run the code, the ‘server_read' and ‘server_store' values will be None and thus, the system will ask for your input to gain access on the server.
 Please insert the following for the server_read:
-Please enter the host: aware-micro.ewi.utwente.nl 
-Please enter the user: human_monitoring 
-Please enter the password: hee5eeYo 
-Please enter the name of the database: human_monitoring
+Please enter the host: host.com 
+Please enter the user: user 
+Please enter the password: password 
+Please enter the name of the database: databasename
 
 Please insert the following for the server_store:
-Please enter the host: linux442.ewi.utwente.nl
-Please enter the user: Short_Behaviour
-Please enter the password: Xj6kEQdF 
-Please enter the name of the database: ShortTerm_Behaviour
+Please enter the host: host.com
+Please enter the user: user
+Please enter the password: password 
+Please enter the name of the database: databasename
+
+These should be written as follows:
+```
+server_read = {'host': 'host.com', 'user': 'user', 'passwd': 'password', 'db': 'databasename' }
+server_store = {'host': 'host.com', 'user': 'Short_Behaviour', 'passwd': 'password', 'db': 'databasename'}
+
+```
 
 ---------------------------
 
-*Last updated: June 21, 2020*
+*Last updated: July 21, 2020*

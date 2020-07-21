@@ -10,7 +10,7 @@ Created on Mon Jun 22 11:54:23 2020
 import itertools
 import pandas as pd
 import numpy as np
-from pandas import datetime
+import datetime
 import os
 import os.path
 import statsmodels.api as sm
@@ -33,8 +33,11 @@ import short_term_functions
 Users input for server connection
 Sensitive information and needs to be updated by the user
 '''
-server_read = None
-server_store = None
+# server_read = None
+# server_store = None
+server_read = {'host': 'aware-micro.ewi.utwente.nl', 'user': 'human_monitoring', 'passwd': 'hee5eeYo', 'db': 'human_monitoring' }
+server_store = {'host': 'linux442.ewi.utwente.nl', 'user': 'Short_Behaviour', 'passwd': 'Xj6kEQdF', 'db': 'ShortTerm_Behaviour'}
+
 
 
 # =============================================================================
@@ -60,7 +63,7 @@ def read_smartphone_data(server_read, server_store,  smartphone, sensors, device
     df_timezone2 = pd.DataFrame()
     
     #Timestamp condition for data acquisition for a certain deviceID
-    N=1 #define the datetime for N=1 days ago
+    N=10 #define the datetime for N=1 days ago
     date_threshold1 = short_term_functions.date_threshold1(N) #calculates based on the timestamp N days ago
     date_threshold2 = short_term_functions.date_threshold2(date_threshold1, server_store, deviceID) #calculates based on the last timestamp at database
     
@@ -149,7 +152,7 @@ def read_smartphone_data(server_read, server_store,  smartphone, sensors, device
             # df_ambient_noise2 = df_ambient_noise1['data'].apply(json.loads).apply(pd.Series)
     
     except Exception as e:
-        print("Exeception occured:{}".format(e))
+        print("Exception occured:{}".format(e))
     
     finally:
         cursorObject.close()
@@ -188,6 +191,10 @@ def store_processed_data(server_store, email_id, Physical_Activity, Social_Activ
         connectionObject = mysql.connector.connect(host=server_store.get('host'), user =server_store.get('user'), passwd=server_store.get('passwd'), db=server_store.get('db') )
         # prepare a cursor object using cursor() method
         cursorObject = connectionObject.cursor()
+        
+        #Converting datetime to string due to MySQL limitation
+        Physical_Activity['Timestamp_Start'] = Physical_Activity['Timestamp_Start'].astype('str')
+        
         for index,row in Physical_Activity.iterrows():
     
             sql="""INSERT INTO Physical_Behaviour(Timestamp_Start, Key_id, User_id, Device_id, Steps, activity_type, confidence)
@@ -206,14 +213,15 @@ def store_processed_data(server_store, email_id, Physical_Activity, Social_Activ
         values = [Physical_Activity['Key_id'][-1], '%s rows inserted'%len(Physical_Activity), Physical_Activity['Key_id'][-1]  ]
         cursorObject.execute(sql,values)
         connectionObject.commit()
+        
+        print (Physical_Activity['Key_id'][-1], 'and %s rows inserted / Physical Behaviour is ok'%len(Physical_Activity))
 
     except Exception as e:
-        print("Exeception occured:{}".format(e))
+        print("Exception occured:{}".format(e))
 
     finally:
         cursorObject.close()
         connectionObject.close()
-        print (Physical_Activity['Key_id'][-1], 'and %s rows inserted / Physical Behaviour is ok'%len(Physical_Activity))
         
     
     #Social Behaviour
@@ -222,6 +230,10 @@ def store_processed_data(server_store, email_id, Physical_Activity, Social_Activ
         connectionObject = mysql.connector.connect(host=server_store.get('host'), user =server_store.get('user'), passwd=server_store.get('passwd'), db=server_store.get('db') )
         # prepare a cursor object using cursor() method
         cursorObject = connectionObject.cursor()
+        
+        #Converting datetime to string due to MySQL limitation
+        Social_Activity['Timestamp_Start'] = Social_Activity['Timestamp_Start'].astype('str')
+        
         for index,row in Social_Activity.iterrows():
     
             sql="""INSERT INTO Social_Behaviour(Timestamp_Start, Key_id, User_id, Device_id, Detected_Social, confidence, Bluetooth, Calls, SMS, Conversation, Google, ESM_Social_Minutes)
@@ -240,22 +252,27 @@ def store_processed_data(server_store, email_id, Physical_Activity, Social_Activ
         values = [Social_Activity['Key_id'][-1], '%s rows inserted'%len(Social_Activity) , Social_Activity['Key_id'][-1] ]
         cursorObject.execute(sql,values)
         connectionObject.commit()
+        
+        print (Social_Activity['Key_id'][-1], 'and %s rows inserted / Social Behaviour is ok'%len(Social_Activity))
 
     except Exception as e:
-        print("Exeception occured:{}".format(e))
+        print("Exception occured:{}".format(e))
 
     finally:
         cursorObject.close()
         connectionObject.close()
-        print (Social_Activity['Key_id'][-1], 'and %s rows inserted / Social Behaviour is ok'%len(Social_Activity))
-   
-    
+        
+      
     #Emotional Behaviour
     try:
          # Open database connection
         connectionObject = mysql.connector.connect(host=server_store.get('host'), user =server_store.get('user'), passwd=server_store.get('passwd'), db=server_store.get('db') )
         # prepare a cursor object using cursor() method
         cursorObject = connectionObject.cursor()
+        
+        #Converting datetime to string due to MySQL limitation
+        Emotional_Activity['Timestamp_Start'] = Emotional_Activity['Timestamp_Start'].astype('str')
+        
         for index,row in Emotional_Activity.iterrows():
     
             sql="""INSERT INTO Emotional_Behaviour(Timestamp_Start, Key_id, User_id, Device_id, ESM_Emotional_Score)
@@ -274,16 +291,16 @@ def store_processed_data(server_store, email_id, Physical_Activity, Social_Activ
         values = [Emotional_Activity['Key_id'][-1], '%s rows inserted'%len(Emotional_Activity) , Emotional_Activity['Key_id'][-1] ]
         cursorObject.execute(sql,values)
         connectionObject.commit()
+        
+        print (Emotional_Activity['Key_id'][-1], 'and %s rows inserted / Emotional Behaviour is ok'%len(Emotional_Activity)) 
 
     except Exception as e:
-        print("Exeception occured:{}".format(e))
+        print("Exception occured:{}".format(e))
 
     finally:
         cursorObject.close()
         connectionObject.close()
-        print (Emotional_Activity['Key_id'][-1], 'and %s rows inserted / Emotional Behaviour is ok'%len(Emotional_Activity)) 
-        
-        
+                
         
     #Cognitive Behaviour
     try:
@@ -291,6 +308,10 @@ def store_processed_data(server_store, email_id, Physical_Activity, Social_Activ
         connectionObject = mysql.connector.connect(host=server_store.get('host'), user =server_store.get('user'), passwd=server_store.get('passwd'), db=server_store.get('db') )
         # prepare a cursor object using cursor() method
         cursorObject = connectionObject.cursor()
+        
+        #Converting datetime to string due to MySQL limitation
+        Cognitive_Activity['Timestamp_Start'] = Cognitive_Activity['Timestamp_Start'].astype('str')
+        
         for index,row in Cognitive_Activity.iterrows():
     
             sql="""INSERT INTO Cognitive_Behaviour(Timestamp_Start, Key_id, User_id, Device_id, ESM_Cognitive_Minutes)
@@ -309,14 +330,16 @@ def store_processed_data(server_store, email_id, Physical_Activity, Social_Activ
         values = [Cognitive_Activity['Key_id'][-1], '%s rows inserted'%len(Cognitive_Activity) , Cognitive_Activity['Key_id'][-1] ]
         cursorObject.execute(sql,values)
         connectionObject.commit()
+        
+        print (Cognitive_Activity['Key_id'][-1], 'and %s rows inserted / Cognitive Behaviour is ok'%len(Cognitive_Activity)) 
 
     except Exception as e:
-        print("Exeception occured:{}".format(e))
+        print("Exception occured:{}".format(e))
 
     finally:
         cursorObject.close()
         connectionObject.close()
-        print (Cognitive_Activity['Key_id'][-1], 'and %s rows inserted / Cognitive Behaviour is ok'%len(Cognitive_Activity)) 
+
         
     print("Insert data for DeviceID= "+deviceID)
    
@@ -361,5 +384,4 @@ if __name__ == '__main__':
         
         #store function to upload processed data
         store_processed_data(server_store, emailID[0], Physical_Activity, Social_Activity, Emotional_Activity, Cognitive_Activity)
-    
-    
+        

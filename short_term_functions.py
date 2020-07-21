@@ -7,11 +7,12 @@ Created on Fri Mar 22 10:17:46 2019
 """
 from sklearn.model_selection import GridSearchCV
 import pandas as pd
+import numpy as np
 import os
 import os.path
 from os import listdir
-from sklearn.externals import joblib
-import numpy as np
+#from sklearn.externals import joblib
+import numpy
 import mysql.connector
 from scipy.signal import butter, lfilter,argrelmax
 import matplotlib.pyplot as plt
@@ -87,7 +88,7 @@ def device_log(server):
         df_device2 = df_device1['data'].apply(json.loads).apply(pd.Series)
     
     except Exception as e:
-        print("Exeception occured:{}".format(e))
+        print("Exception occured:{}".format(e))
     
     finally:
         cursorObject.close()
@@ -125,6 +126,7 @@ Output:
 """
 def date_threshold2(date_threshold1, server, deviceID):
 # Open database connection
+    threshold2 = date_threshold1
     try:
         # Open database connection
         connectionObject = mysql.connector.connect(host=server.get('host'), user =server.get('user'), passwd=server.get('passwd'), db=server.get('db') )
@@ -133,38 +135,55 @@ def date_threshold2(date_threshold1, server, deviceID):
         
         cursor.execute("SELECT Timestamp_Start FROM Physical_Behaviour WHERE device_id='%s'"%deviceID + "ORDER BY ID DESC LIMIT 1")
         res = cursor.fetchone()
-        res = res[0]
-        s = '{:%Y/%m/%d %H:%M}'.format(res)
-        threshold_physical = int(time.mktime(datetime.strptime(s, "%Y/%m/%d %H:%M").timetuple()))*1000
+        #condition for empty table
+        if res is not None:
+            res = res[0]
+            s = '{:%Y/%m/%d %H:%M}'.format(res)
+            threshold_physical = int(time.mktime(datetime.strptime(s, "%Y/%m/%d %H:%M").timetuple()))*1000
+        else:
+            threshold_physical = 0
 
         cursor.execute("SELECT Timestamp_Start FROM Social_Behaviour WHERE device_id='%s'"%deviceID + "ORDER BY ID DESC LIMIT 1")
         res = cursor.fetchone()
-        res = res[0]
-        s = '{:%Y/%m/%d %H:%M}'.format(res)
-        threshold_social = int(time.mktime(datetime.strptime(s, "%Y/%m/%d %H:%M").timetuple()))*1000
+        #condition for empty table
+        if res is not None:
+            res = res[0]
+            s = '{:%Y/%m/%d %H:%M}'.format(res)
+            threshold_social = int(time.mktime(datetime.strptime(s, "%Y/%m/%d %H:%M").timetuple()))*1000
+        else:
+            threshold_social = 0
         
         cursor.execute("SELECT Timestamp_Start FROM Emotional_Behaviour WHERE device_id='%s'"%deviceID + "ORDER BY ID DESC LIMIT 1")
         res = cursor.fetchone()
-        res = res[0]
-        s = '{:%Y/%m/%d %H:%M}'.format(res)
-        threshold_emotional = int(time.mktime(datetime.strptime(s, "%Y/%m/%d %H:%M").timetuple()))*1000
+        #condition for empty table
+        if res is not None:
+            res = res[0]
+            s = '{:%Y/%m/%d %H:%M}'.format(res)
+            threshold_emotional = int(time.mktime(datetime.strptime(s, "%Y/%m/%d %H:%M").timetuple()))*1000
+        else:
+            threshold_emotional = 0
         
         cursor.execute("SELECT Timestamp_Start FROM Cognitive_Behaviour WHERE device_id='%s'"%deviceID + "ORDER BY ID DESC LIMIT 1")
         res = cursor.fetchone()
-        res = res[0]
-        s = '{:%Y/%m/%d %H:%M}'.format(res)
-        threshold_cognitive = int(time.mktime(datetime.strptime(s, "%Y/%m/%d %H:%M").timetuple()))*1000
+        #condition for empty table
+        if res is not None:
+            res = res[0]
+            s = '{:%Y/%m/%d %H:%M}'.format(res)
+            threshold_cognitive = int(time.mktime(datetime.strptime(s, "%Y/%m/%d %H:%M").timetuple()))*1000
+        else:
+            threshold_cognitive = 0
 
         cursor.close()
         connectionObject.close()
         
         #checks the minimum timestamp among all the data
         threshold_array = [threshold_physical, threshold_social, threshold_emotional, threshold_cognitive ]
-        threshold2 = np.amin(threshold_array)
+        
+        if min(threshold_array) !=0 :
+            threshold2 = min(threshold_array)
     
     except Exception as e:
-        threshold2 = date_threshold1
-        print("Exeception occured:{}".format(e))
+        print("Exception occured:{}".format(e))
 
     return threshold2
 
@@ -195,8 +214,8 @@ def peak_accel_threshold(data, timestamps, threshold):  # function for calculati
     last_state = 'below'
     crest_troughs = 0
     crossings = []
+    
     for i, datum in enumerate(data):
-
         current_state = last_state
         if datum < threshold:
             current_state = 'below'  # below - less than threshold
@@ -204,7 +223,7 @@ def peak_accel_threshold(data, timestamps, threshold):  # function for calculati
             current_state = 'above'  # above - above the threshold
 
         if current_state is not last_state:
-            if current_state is 'above':
+            if current_state == 'above':
                 crossing = [timestamps[i], threshold]
                 crossings.append(crossing)
             else:
@@ -262,7 +281,7 @@ def create_table(server):
 
     except Exception as e:
 
-        print("Exeception occured:{}".format(e))
+        print("Exception occured:{}".format(e))
 
     finally:
 
@@ -285,7 +304,7 @@ def create_table(server):
 
     except Exception as e:
 
-        print("Exeception occured:{}".format(e))
+        print("Exception occured:{}".format(e))
 
     finally:
 
@@ -307,7 +326,7 @@ def create_table(server):
 
     except Exception as e:
 
-        print("Exeception occured:{}".format(e))
+        print("Exception occured:{}".format(e))
 
     finally:
 
@@ -329,7 +348,7 @@ def create_table(server):
 
     except Exception as e:
 
-        print("Exeception occured:{}".format(e))
+        print("Exception occured:{}".format(e))
 
     finally:
 
@@ -350,7 +369,7 @@ def create_table(server):
 
     except Exception as e:
 
-        print("Exeception occured:{}".format(e))
+        print("Exception occured:{}".format(e))
 
     finally:
 
@@ -372,7 +391,7 @@ def create_table(server):
 
     except Exception as e:
 
-        print("Exeception occured:{}".format(e))
+        print("Exception occured:{}".format(e))
 
     finally:
 
@@ -394,7 +413,7 @@ def create_table(server):
 
     except Exception as e:
 
-        print("Exeception occured:{}".format(e))
+        print("Exception occured:{}".format(e))
 
     finally:
 
@@ -415,7 +434,7 @@ def create_table(server):
 
     except Exception as e:
 
-        print("Exeception occured:{}".format(e))
+        print("Exception occured:{}".format(e))
 
     finally:
 
@@ -492,7 +511,7 @@ def Physical_Behaviour_Model(deviceID, userID, df_acc, df_GOOGLE, df_timezone):
     Physical_Activity["User_id"] = userID
     Physical_Activity["period"] = Physical_Activity.index.strftime('%s')
     Physical_Activity["Key_id"] = Physical_Activity[['period', 'User_id']].apply(lambda x: '_'.join(x), axis=1)
-    Physical_Activity = Physical_Activity.replace({pd.np.nan: None})
+    Physical_Activity = Physical_Activity.replace({pd.nan: None})
     Physical_Activity = Physical_Activity[:-1] #delete last row with null value (due to above condition)
     #Physical_Activity = Physical_Activity.fillna(0) #condition to concert null to 0
     print ("End of Physical Script")
@@ -514,7 +533,9 @@ def Physical_Behaviour_Model2(deviceID, userID, df_GOOGLE, df_timezone):
     #Google Location
     if df_GOOGLE.empty == True:
         df_GOOGLE1 = pd.DataFrame()
-        df_GOOGLE1["Google"] = 0
+        df_GOOGLE1["Steps"] = 0
+        df_GOOGLE1["activity_type"] = 0
+        df_GOOGLE1["confidence"] = 0
     else:
         df_GOOGLE['Steps']=0 #steps are predefined with zero values
         df_GOOGLE['time'] = pd.to_datetime(df_GOOGLE['timestamp'].astype(np.int64) ,unit='ms')
@@ -548,7 +569,7 @@ def Physical_Behaviour_Model2(deviceID, userID, df_GOOGLE, df_timezone):
     Physical_Activity["User_id"] = userID
     Physical_Activity["period"] = Physical_Activity.index.strftime('%s')
     Physical_Activity["Key_id"] = Physical_Activity[['period', 'User_id']].apply(lambda x: '_'.join(x), axis=1)
-    Physical_Activity = Physical_Activity.replace({pd.np.nan: None})
+    Physical_Activity = Physical_Activity.replace({np.nan: None})
     # Physical_Activity = Physical_Activity[:-1] #delete last row with null value (due to above condition)
     print ("End of Physical Script")
     return Physical_Activity
@@ -742,13 +763,14 @@ def Social_Behaviour_Model(deviceID, userID, df_calls, df_messages, df_conversat
     Social_Activity["Detected_Social"] = 0
     Social_Activity["Detected_Social"] = Social_Activity['Calls'] + Social_Activity['SMS'] + Social_Activity['Conversation'] + Social_Activity['Google'] + Social_Activity["Bluetooth"]
     Social_Activity["confidence"] = Social_Activity["Detected_Social"] *20
+    Social_Activity.loc[Social_Activity["Detected_Social"] >0, "Detected_Social"] =1
     Social_Activity["Timestamp_Start"] = pd.to_datetime(Social_Activity.index)
     #Social_Activity ["Timestamp_End"] = Social_Activity.index + datetime.timedelta(minutes = 1)
     Social_Activity["Device_id"] = deviceID
     Social_Activity["User_id"] = userID
     Social_Activity["period"] = pd.to_datetime(Social_Activity.index).strftime('%s')
     Social_Activity["Key_id"] = Social_Activity[['period', 'User_id']].apply(lambda x: '_'.join(x), axis=1)
-    
+    Social_Activity = Social_Activity.replace({np.nan: None})
 
     print ("End of Social Script")
     return Social_Activity
@@ -795,6 +817,7 @@ def Emotional_Behaviour_Model(deviceID, userID, df_ESM, df_timezone):
     Emotional_Activity["User_id"] = userID
     Emotional_Activity["period"] = Emotional_Activity.index.strftime('%s')
     Emotional_Activity["Key_id"] = Emotional_Activity[['period', 'User_id']].apply(lambda x: '_'.join(x), axis=1)
+    Emotional_Activity = Emotional_Activity.replace({np.nan: None})
     
     print ("End of Emotional Script")
     return Emotional_Activity
@@ -842,6 +865,7 @@ def Cognitive_Behaviour_Model(deviceID, userID, df_ESM, df_timezone):
     Cognitive_Activity["User_id"] = userID
     Cognitive_Activity["period"] = Cognitive_Activity.index.strftime('%s')
     Cognitive_Activity["Key_id"] = Cognitive_Activity[['period', 'User_id']].apply(lambda x: '_'.join(x), axis=1)
+    Cognitive_Activity = Cognitive_Activity.replace({np.nan: None})
     
     print ("End of Cognitive Script")
     return Cognitive_Activity
