@@ -3,7 +3,7 @@
 
 How To Build a HBAF Container Using Python
 ===============================================
-June, 2020
+August, 2020
 
 Build Configuration/Management
 ------------------------------
@@ -17,9 +17,6 @@ WORKDIR /python_app
 RUN pip3 install -r requirements.txt
 CMD python ./short_term_main.py 
 ```
-
-
-A line-by-line explanation is later in this article, but let's just build thing and run it; we come back to the details later.
 
 Let's Get Some Code
 -------------------
@@ -60,24 +57,35 @@ E. Based on the extracted dataframes, it uploads the processed data on the serve
 
 Every time that you run the code, the ‘server_read' and ‘server_store' values will be None and thus, the system will ask for your input to gain access on the server.
 Please insert the following for the server_read:
-Please enter the host: host.com 
-Please enter the user: user 
-Please enter the password: password 
-Please enter the name of the database: databasename
+server_read = {'host': 'read_server.connection.com', 'user': 'username_read', 'passwd': 'xxxxx', 'db': 'db_name_read' }
+Please enter the host: read_server.connection.com 
+Please enter the user: username_read
+Please enter the password: xxxxx 
+Please enter the name of the database: db_name_read
 
 Please insert the following for the server_store:
-Please enter the host: host.com
-Please enter the user: user
-Please enter the password: password 
-Please enter the name of the database: databasename
+server_store = {'host': 'store_server.connection.com', 'user': 'username_store', 'passwd': 'xxxxx', 'db': 'db_name_store'}
+Please enter the host: store_server.connection.com
+Please enter the user: username_store
+Please enter the password: xxxxx 
+Please enter the name of the database: db_name_store
 
-These should be written as follows:
+These should be written as follows on line 38 and 39 in the file short_term_main.py:
 ```
-server_read = {'host': 'host.com', 'user': 'user', 'passwd': 'password', 'db': 'databasename' }
-server_store = {'host': 'host.com', 'user': 'Short_Behaviour', 'passwd': 'password', 'db': 'databasename'}
-
+server_read = {'host': 'read_server.connection.com', 'user': 'username_read', 'passwd': 'xxxxx', 'db': 'db_name_read' }
+server_store = {'host': 'store_server.connection.com', 'user': 'username_store', 'passwd': 'xxxxx', 'db': 'db_name_store'}
 ```
+Holistic Behaviour Analysis Framework
+========================
 
+The project refers to modelling short term behaviours,
+
+`Learn more <https://github.com/AgentsUnited>`_.
+`Learn more <https://www.agents-united.org/>`_.
+
+---------------
+
+If you want to learn more about ...
 ---------------------------
 
-*Last updated: July 21, 2020*
+*Last updated: august 21, 2020*
